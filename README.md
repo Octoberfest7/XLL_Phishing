@@ -137,7 +137,46 @@ The pretexting involved in getting a victim to download and execute the XLL will
 
 The XLL by itself will just leave a blank Excel window after our code is done executing; it would be much better for us to provide the Excel Spreadsheet that the victim is looking for. 
 
-There are a few ways to do this.  We could include the XLSX spreadsheet in the ZIP file as a hidden file and have our code open the XLSX; however this could cause confusion or problems if the victim has the option to display hidden files enabled in File Explorer.  Alternatively we could embed our XLSX as as byte array inside the XLL; when the XLL executes, it could drop the XLSX to disk beside the XLL after which it could be opened. In either case we will name the XLSX the same as the XLL, the only difference being the extension.  Given that our XLL is written in C, we can bring in some of the capabilities from a previous writeup I did on [Payload Capabilities in C](https://github.com/Octoberfest7/Mutants_Sessions_Self-Deletion), namely Self-Deletion.  Combining these two techniques results in the XLL being deleted from disk, and the XLSX of the same name being dropped in it's place.  To the undiscerning eye, it will appear that the XLSX was there the entire time.
+There are a few ways to do this.  We could include the XLSX spreadsheet in the ZIP file as a hidden file and have our code open the XLSX; however this could cause confusion or problems if the victim has the option to display hidden files enabled in File Explorer.  Alternatively we could embed our XLSX as as byte array inside the XLL; when the XLL executes, it could drop the XLSX to disk beside the XLL after which it could be opened. In either case we will name the XLSX the same as the XLL, the only difference being the extension. 
 
-Unfortunately the location where the XLL is deleted and the XLSX dropped is the appdata\temp\local folder, not the original ZIP; one could create a second ZIP containing the XLSX alone and also read it into a byte array within the XLL.  On execution, in addition to the aforementioned actions, the XLL could try and locate the original ZIP file in c:\users\<victim>\Downloads\ and delete it before dropping the second ZIP containing just the XLSX in it's place. This could of course fail if the user saved the original ZIP in a different location or under a different name, however in many/most cases it should drop in the user's downloads folder automatically.
+Given that our XLL is written in C, we can bring in some of the capabilities from a previous writeup I did on [Payload Capabilities in C](https://github.com/Octoberfest7/Mutants_Sessions_Self-Deletion), namely Self-Deletion.  Combining these two techniques results in the XLL being deleted from disk, and the XLSX of the same name being dropped in it's place.  To the undiscerning eye, it will appear that the XLSX was there the entire time.
 
+Unfortunately the location where the XLL is deleted and the XLSX dropped is the appdata\temp\local folder, not the original ZIP; to address this we can create a second ZIP containing the XLSX alone and also read it into a byte array within the XLL.  On execution in addition to the aforementioned actions, the XLL could try and locate the original ZIP file in c:\users\<victim>\Downloads\ and delete it before dropping the second ZIP containing just the XLSX in it's place. This could of course fail if the user saved the original ZIP in a different location or under a different name, however in many/most cases it should drop in the user's downloads folder automatically. 
+
+![image](https://user-images.githubusercontent.com/91164728/168448788-2bd74847-b7ac-4792-bd36-3cc3bbf5f00f.png)
+
+This screenshot shows in the lower pane the temp folder created in appdata\local\temp containing the XLL and the dropped XLSX, while the top pane shows the original File Explorer window from which the XLL was opened.  Notice in the lower pane that the XLL has size 0. This is because it deleted itself during execution, however until the top pane is closed the XLL file will not completely disappear from the appdata\local\temp location.  Even if the victim were to click the XLL again, it is now inert and does not really exist.  
+
+Similarly, as soon as the victim backs out of the opened ZIP in File Explorer (either by closing it or navigating to a different folder), should they click spreadsheet.zip again they will now find that the test folder contains importantdoc.xlsx; so the XLL has been removed and replaced by the harmless XLSX in both locations that it existed on disk.
+
+This GIF demonstrates the download and execution of the XLL on an MDE trial VM.  Note that for some reason Excel opens two instances here; on my home computer it only opened one, so not quite sure why that differs.
+
+![](xll_download.gif)
+
+## Detection
+
+As always, we will ask "What does MDE see?"
+
+A quick screenshot dump to prove that I did execute this on target and catch a beacon back:
+
+![image](https://user-images.githubusercontent.com/91164728/168449233-2d107bb9-3091-462d-844d-aff5242a1f9f.png)
+
+![image](https://user-images.githubusercontent.com/91164728/168449265-55c66ee0-b369-406e-b2d6-86ddd4fa71d1.png)
+
+![image](https://user-images.githubusercontent.com/91164728/168449272-6f55fd4d-7324-4df0-a6bf-fa2f7a571ae0.png)
+
+First off, zero alerts:
+
+![image](https://user-images.githubusercontent.com/91164728/168449180-265642af-c092-437b-800a-5286fd1b1d88.png)
+
+What does the timeline/event log capture?
+
+![image](https://user-images.githubusercontent.com/91164728/168449132-5d4f3ada-8449-4c64-9688-e585ed1274ae.png)
+
+Yikes. Truth be told I have no idea where the keylogging, encrypting, and deycrypting credentials alerts are coming from as my code doesn't do any of that.  Our actions sure look suspicious when laid out like this, but I will again comment on just how much data is collected by MDE on a single endpoint, let alone hundreds, thousands, or hundreds of thousands that an organization may have hooked into the EDR.  So long as we aren't throwing any actual alerts, we are probably ok.
+
+## Code Sample
+The moment most have probably been waiting for, I am providing a code sample of my developed XLL runner, limited to just those parts discussed here in the Tradecraft section.  It will be on the reader to actually get the code into an XLL and implement it in conjunction with the rest of their runner.  As always, do no harm, have permission to phish an organization, etc. 
+
+## Conclusion
+With the dominance of Office Macro's coming to a close, XLL's present an attractive option for phishing campaigns.  With some creativity they can be used in conjunction with other techniques to bypass many layers of defenses implemented by organizations and security teams.  Thank you for reading and I hope you learned something useful!
