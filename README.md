@@ -23,7 +23,7 @@ XLL's are DLL's, specifically crafted for Microsoft Excel. To the untrained eye 
 
 XLL's provide a very attractive option for UDA given that they are executed by Microsoft Excel, a very commonly encountered software in client networks; as an additional bonus, because they are executed by Excel, our payload will almost assuredly bypass Application Whitelisting rules because a trusted application (Excel) is executing it. XLL's can be written in C, C++, or C# which provides a great deal more flexibility and power (and sanity) than VBA macros which further makes them a desirable choice. 
 
-The downside of course is that there are very few legitimate uses for XLL's, so it SHOULD be a very easy box to check for organizations to block the download of that file extension through both email and web download. Sadly many organzations are years behind the curve and as such XLL's stand to be a viable method of phishing for some time.
+The downside of course is that there are very few legitimate uses for XLL's, so it SHOULD be a very easy box to check for organizations to block the download of that file extension through both email and web download. Sadly many organizations are years behind the curve and as such XLL's stand to be a viable method of phishing for some time.
 
 There are a series of different events that can be used to execute code within an XLL, the most notable of which is xlAutoOpen.  The full list may be seen [here](https://docs.microsoft.com/en-us/office/client-developer/excel/add-in-manager-and-xll-interface-functions): 
 
@@ -33,9 +33,9 @@ Upon double clicking an XLL, the user is greeted by this screen:
 
 ![image](https://user-images.githubusercontent.com/91164728/168440184-fb48346b-50d7-427e-8075-5ad28b350128.png)
 
-This single dialog box is all that stands between the user and code exection; with fairly thin social engineering, code execution is all but assured.
+This single dialog box is all that stands between the user and code execution; with fairly thin social engineering, code execution is all but assured.
 
-Something that must be kept in mind is that XLL's, being executables, are **architecture specific**.  This means that you must know your target; the version of Microsoft Office/Excel that the target organization utilizies will (usually) dictate what architecture you need to build your payload for.
+Something that must be kept in mind is that XLL's, being executables, are **architecture specific**.  This means that you must know your target; the version of Microsoft Office/Excel that the target organization utilizes will (usually) dictate what architecture you need to build your payload for.
 
 There is a pretty clean break in Office versions that can be used as a rule of thumb:
 
@@ -57,11 +57,11 @@ Delivery of the payload is a serious consideration in context of UDA.  There are
 2. Web Delivery
 
 ### Email Attachment
-Either via attaching a file or including a link to a website where a file may be downloaded, email is a critial part of the UDA process. Over the years many organizations (and email providers) have matured and enforced rules to protect users and organizations from malicious attachments.  Mileage will vary, but organizations now have the capability to:
+Either via attaching a file or including a link to a website where a file may be downloaded, email is a critical part of the UDA process. Over the years many organizations (and email providers) have matured and enforced rules to protect users and organizations from malicious attachments.  Mileage will vary, but organizations now have the capability to:
 
 1. Block executable attachments (EXE, DLL, XLL, MZ headers overall)
 2. Block containers like ISO/IMG which are mountable and may contain executable content
-3. Examine zip files and block those containing exectuable content
+3. Examine zip files and block those containing executable content
 4. Block zip files that are password protected
 5. More
 
@@ -157,7 +157,7 @@ This GIF demonstrates the download and execution of the XLL on an MDE trial VM. 
 
 As always, we will ask "What does MDE see?"
 
-A quick screenshot dump to prove that I did execute this on target and catch a beacon back:
+A quick screenshot dump to prove that I did execute this on target and catch a beacon back on TestMachine11:
 
 ![image](https://user-images.githubusercontent.com/91164728/168449233-2d107bb9-3091-462d-844d-aff5242a1f9f.png)
 
@@ -173,7 +173,7 @@ What does the timeline/event log capture?
 
 ![image](https://user-images.githubusercontent.com/91164728/168449132-5d4f3ada-8449-4c64-9688-e585ed1274ae.png)
 
-Yikes. Truth be told I have no idea where the keylogging, encrypting, and deycrypting credentials alerts are coming from as my code doesn't do any of that.  Our actions sure look suspicious when laid out like this, but I will again comment on just how much data is collected by MDE on a single endpoint, let alone hundreds, thousands, or hundreds of thousands that an organization may have hooked into the EDR.  So long as we aren't throwing any actual alerts, we are probably ok.
+Yikes. Truth be told I have no idea where the keylogging, encrypting, and decrypting credentials alerts are coming from as my code doesn't do any of that.  Our actions sure look suspicious when laid out like this, but I will again comment on just how much data is collected by MDE on a single endpoint, let alone hundreds, thousands, or hundreds of thousands that an organization may have hooked into the EDR.  So long as we aren't throwing any actual alerts, we are probably ok.
 
 ## Code Sample
 The moment most have probably been waiting for, I am providing a code sample of my developed XLL runner, limited to just those parts discussed here in the Tradecraft section.  It will be on the reader to actually get the code into an XLL and implement it in conjunction with the rest of their runner.  As always, do no harm, have permission to phish an organization, etc. 
