@@ -190,12 +190,12 @@ I had some issues getting my XLL's to compile using MingW on a kali machine so t
 
 **x64**
 ```
-x86_64-w64-mingw32-gcc HelloWorld.c 2013_Office_System_Developer_Resources/Excel2013XLLSDK/LIB/x64/XLCALL32.LIB -o importantdoc.xll -s -Os -DUNICODE -shared -I 2013_Office_System_Developer_Resources/Excel2013XLLSDK/INCLUDE/
+x86_64-w64-mingw32-gcc snippet.c 2013_Office_System_Developer_Resources/Excel2013XLLSDK/LIB/x64/XLCALL32.LIB -o importantdoc.xll -s -Os -DUNICODE -shared -I 2013_Office_System_Developer_Resources/Excel2013XLLSDK/INCLUDE/
 ```
 
 **x86**
 ```
-i686-w64-mingw32-gcc HelloWorldXll.c 2013_Office_System_Developer_Resources/Excel2013XLLSDK/LIB/XLCALL32.LIB -o HelloWorldXll.xll -s -DUNICODE -Os -shared -I 2013_Office_System_Developer_Resources/Excel2013XLLSDK/INCLUDE/ 
+i686-w64-mingw32-gcc snippet.c 2013_Office_System_Developer_Resources/Excel2013XLLSDK/LIB/XLCALL32.LIB -o HelloWorldXll.xll -s -DUNICODE -Os -shared -I 2013_Office_System_Developer_Resources/Excel2013XLLSDK/INCLUDE/ 
 ```
 
 After you compile you will want to make a new folder and copy the XLL into that folder.  Then zip it using:
