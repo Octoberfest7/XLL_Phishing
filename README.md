@@ -137,11 +137,11 @@ The pretexting involved in getting a victim to download and execute the XLL will
 
 The XLL by itself will just leave a blank Excel window after our code is done executing; it would be much better for us to provide the Excel Spreadsheet that the victim is looking for. 
 
-There are a few ways to do this.  We could include the XLSX spreadsheet in the ZIP file as a hidden file and have our code open the XLSX; however this could cause confusion or problems if the victim has the option to display hidden files enabled in File Explorer.  Alternatively we could embed our XLSX as as byte array inside the XLL; when the XLL executes, it could drop the XLSX to disk beside the XLL after which it could be opened. In either case we will name the XLSX the same as the XLL, the only difference being the extension. 
+We can embed our XLSX as a byte array inside the XLL; when the XLL executes, it will drop the XLSX to disk beside the XLL after which it will be opened. We will name the XLSX the same as the XLL, the only difference being the extension.
 
 Given that our XLL is written in C, we can bring in some of the capabilities from a previous writeup I did on [Payload Capabilities in C](https://github.com/Octoberfest7/Mutants_Sessions_Self-Deletion), namely Self-Deletion.  Combining these two techniques results in the XLL being deleted from disk, and the XLSX of the same name being dropped in it's place.  To the undiscerning eye, it will appear that the XLSX was there the entire time.
 
-Unfortunately the location where the XLL is deleted and the XLSX dropped is the appdata\temp\local folder, not the original ZIP; to address this we can create a second ZIP containing the XLSX alone and also read it into a byte array within the XLL.  On execution in addition to the aforementioned actions, the XLL could try and locate the original ZIP file in c:\users\<victim>\Downloads\ and delete it before dropping the second ZIP containing just the XLSX in it's place. This could of course fail if the user saved the original ZIP in a different location or under a different name, however in many/most cases it should drop in the user's downloads folder automatically. 
+Unfortunately the location where the XLL is deleted and the XLSX dropped is the appdata\temp\local folder, not the original ZIP; to address this we can create a second ZIP containing the XLSX alone and also read it into a byte array within the XLL.  On execution in addition to the aforementioned actions, the XLL could try and locate the original ZIP file in c:\users\victim\Downloads\ and delete it before dropping the second ZIP containing just the XLSX in it's place. This could of course fail if the user saved the original ZIP in a different location or under a different name, however in many/most cases it should drop in the user's downloads folder automatically. 
 
 ![image](https://user-images.githubusercontent.com/91164728/168448788-2bd74847-b7ac-4792-bd36-3cc3bbf5f00f.png)
 
@@ -177,6 +177,34 @@ Yikes. Truth be told I have no idea where the keylogging, encrypting, and decryp
 
 ## Code Sample
 The moment most have probably been waiting for, I am providing a code sample of my developed XLL runner, limited to just those parts discussed here in the Tradecraft section.  It will be on the reader to actually get the code into an XLL and implement it in conjunction with the rest of their runner.  As always, do no harm, have permission to phish an organization, etc. 
+
+### Compiling and setup
+
+I have included the [source code](https://github.com/Octoberfest7/XLL_Phishing/blob/main/ingestfile.c) for a program that will ingest a file and produce hex which can be copied into the byte arrays defined in the snippet.  Use this on the the XLSX you wish to present to the user, as well as the ZIP file containing the folder which contains that same XLSX and store them in their respective byte arrays.  Compile this code using:
+
+```
+gcc -o ingestfile ingestfile.c
+```
+
+I had some issues getting my XLL's to compile using MingW on a kali machine so thought I would post the commands here:
+
+**x64**
+```
+x86_64-w64-mingw32-gcc HelloWorld.c 2013_Office_System_Developer_Resources/Excel2013XLLSDK/LIB/x64/XLCALL32.LIB -o importantdoc.xll -s -Os -DUNICODE -shared -I 2013_Office_System_Developer_Resources/Excel2013XLLSDK/INCLUDE/
+```
+
+**x86**
+```
+i686-w64-mingw32-gcc HelloWorldXll.c 2013_Office_System_Developer_Resources/Excel2013XLLSDK/LIB/XLCALL32.LIB -o HelloWorldXll.xll -s -DUNICODE -Os -shared -I 2013_Office_System_Developer_Resources/Excel2013XLLSDK/INCLUDE/ 
+```
+
+After you compile you will want to make a new folder and copy the XLL into that folder.  Then zip it using:
+
+```
+zip -r <myzipname>.zip <foldername>/
+```
+
+Note that in order for the tradecraft outlined in this post to work, you are going to need to match some variables in the code snippet to what you name the XLL and the zip file. 
 
 ## Conclusion
 With the dominance of Office Macro's coming to a close, XLL's present an attractive option for phishing campaigns.  With some creativity they can be used in conjunction with other techniques to bypass many layers of defenses implemented by organizations and security teams.  Thank you for reading and I hope you learned something useful!
